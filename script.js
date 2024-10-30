@@ -1,10 +1,26 @@
 let model;
-let net = new brain.NeuralNetwork();
-
+const classNames = ["Dog", "Cat", "Bird"]; // Replace with your class names
 
 async function loadModel() {
     try {
-        model = await tf.loadLayersModel('model/model.json');
+        // Fetch the model.zip from GitHub
+        const response = await fetch('https://dedipyabangaru-356.github.io/my-image-recognition-model/model.zip');
+        const arrayBuffer = await response.arrayBuffer();
+
+        // Unzip the file using JSZip
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const modelJson = await zip.file("model.json").async("string");
+        const weightFiles = await Promise.all(
+            Object.keys(zip.files)
+                .filter(file => file.endsWith(".bin"))
+                .map(async file => {
+                    const blob = await zip.file(file).async("blob");
+                    return new File([blob], file);
+                })
+        );
+
+        // Load the model using TensorFlow.js with unzipped model.json and weights
+        model = await tf.loadLayersModel(tf.io.browserFiles([new File([modelJson], "model.json"), ...weightFiles]));
         document.getElementById('prediction').innerText = "Model loaded successfully!";
         setupWebcam();
     } catch (error) {
@@ -13,60 +29,7 @@ async function loadModel() {
     }
 }
 
-async function setupWebcam() {
-    const webcamElement = document.getElementById('webcam');
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    webcamElement.srcObject = stream;
-    predictWithBrainJS();
-}
-
-
-
-async function predictWithBrainJS() {
-    const webcamElement = document.getElementById('webcam');
-    const predictionElement = document.getElementById('prediction');
-
-    while (true) {
-        const imageCapture = tf.browser.fromPixels(webcamElement)
-            .resizeNearestNeighbor([224, 224])
-            .toFloat()
-            .expandDims();
-
-        if (model) {
-            const predictions = await model.predict(imageCapture).data();
-            
-            console.log("Predictions Array: ", predictions); // Debug: Check the predictions array
-
-            let maxProbability = 0;
-            let predictedClassIndex = -1;
-            predictions.forEach((probability, index) => {
-                if (probability > maxProbability) {
-                    maxProbability = probability;
-                    predictedClassIndex = index;
-                }
-            });
-
-            console.log("Predicted Class Index: ", predictedClassIndex); // Debug: Check which class is predicted
-
-            const predictedClass = classNames[predictedClassIndex] || "Unknown";
-            predictionElement.innerText = `Prediction: ${predictedClass} (Confidence: ${(maxProbability * 100).toFixed(2)}%)`;
-        }
-
-        imageCapture.dispose();
-        await tf.nextFrame();
-    }
-}
-
-
-const webcamElement = document.getElementById('webcam');
-const predictionElement = document.getElementById('prediction');
-
-async function loadModel() {
-    const model = await tf.loadLayersModel('model/model.json'); // Adjust the path to your model
-    console.log('Model loaded successfully!');
-    return model;
-}
-
+// Your other functions remain the same
 async function startWebcam() {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     webcamElement.srcObject = stream;
