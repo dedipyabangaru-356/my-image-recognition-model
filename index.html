@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>In-Browser Object Recognition</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff; /* Light blue background */
+        color: #333;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        color: #c97ddf; /* Darker blue for title */
+        font-family: "Times New Roman", Times, serif;
+        font-size: 2rem;
+        margin-top: 20px;
+      }
+
+      #prediction {
+        font-size: 1.2rem;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif, sans-serif;
+        color: #211b1b;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      #webcam {
+        transform: scaleX(-1);
+      }
+
+      p {
+        font-size: 1rem;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif, sans-serif;
+        color: #000000;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      #prediction {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>OBJECT RECOGNITION WITH TENSORFLOW.JS AND BRAIN.JS</h1>
+      <video id="webcam" autoplay playsinline width="224" height="224"></video>
+      <p id="prediction">Awaiting prediction...</p>
+      <p>Model loaded successfully!</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brain.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
